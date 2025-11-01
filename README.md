@@ -10,31 +10,69 @@ Laravel 12 API backend that fulfils the contract expected by the UserHub Flutter
 - Node.js 20+ (optional, only needed for asset builds)
 - Mail driver credentials (Mailtrap / SMTP) for password reset notifications
 
-## Initial Setup
+## Quick Start
 
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan jwt:secret
+1. **Install dependencies**
+   ```bash
+   composer install
+   npm install       # optional, only if you want to rebuild front-end assets
+   ```
+
+2. **Copy environment file & generate keys**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   php artisan jwt:secret
+   ```
+
+3. **Configure `.env`**
+   - Set `APP_URL=http://127.0.0.1:8000`
+   - Point the database configuration to your PostgreSQL instance.
+   - Provide mail credentials (e.g. Mailtrap) so password reset emails send.
+   - Confirm `FILESYSTEM_DISK=public` and `FILESYSTEM_PUBLIC_URL=${APP_URL}/storage`.
+   - Update SMTP settings, for example:
+     ```dotenv
+     MAIL_MAILER=smtp
+     MAIL_HOST=sandbox.smtp.mailtrap.io
+     MAIL_PORT=2525
+     MAIL_USERNAME=your_mailtrap_username
+     MAIL_PASSWORD=your_mailtrap_password
+     MAIL_ENCRYPTION=tls
+     MAIL_FROM_ADDRESS="no-reply@userhub.test"
+     MAIL_FROM_NAME="UserHub"
+     ```
+     Replace the values with credentials from your mail provider (Mailtrap, Postmark, SES, etc.).
+
+4. **Prepare the database and storage**
+   ```bash
+   php artisan migrate --seed
+   php artisan storage:link
+   ```
+
+5. **Run the development services**
+   ```bash
+   php artisan serve --host=127.0.0.1 --port=8000
+   php artisan queue:work --queue=default --tries=3   # optional, only if you queue mail
+   npm run dev                                       # optional, rebuild assets if you modify views
+   ```
+
+The API is now reachable at `http://127.0.0.1:8000/api/v1`. The seeded admin user is listed in [Seed Data](#seed-data).
+
+### Running with Laravel Herd or Valet
+
+If you use [Laravel Herd](https://herd.laravel.com/) or Valet, point the site to `public/` and ensure the PHP version is 8.3+. Queue workers can be managed through Supervisor or Laravel Horizon if desired.
+
+## Seed Data
+
+The database seeder creates a baseline administrator:
+
+```
+email: admin@example.com
+username: admin
+password: Password123!
 ```
 
-Update `.env` with database, mail, and filesystem credentials. Default connection is PostgreSQL; adjust values if required.
-
-Run database migrations, seed demo data, and expose the storage symlink so avatars resolve correctly:
-
-```bash
-php artisan migrate --seed
-php artisan storage:link
-```
-
-Finally, start the API server:
-
-```bash
-php artisan serve --host=127.0.0.1 --port=8000
-```
-
-The Flutter client should target `http://127.0.0.1:8000/api` during local development.
+The password reset link emails point to `/reset-password` (served from `resources/views/auth/reset-password.blade.php`), which posts back to `/api/auth/reset-password`.
 
 ## API Overview
 
@@ -72,16 +110,6 @@ All endpoints return JSON envelopes shaped as:
 | PUT | `/api/me` | Update profile details and avatar |
 | GET | `/api/users` | Paginated user directory (`page`, `size`, `q`) |
 | GET | `/api/users/{id}` | User detail by id |
-
-Default admin seed credentials:
-
-```
-email: admin@example.com
-username: admin
-password: Password123!
-```
-
-The password reset link emails point to `/reset-password` which renders a lightweight HTML form posting back to `/api/auth/reset-password`.
 
 ## Testing & Quality
 
