@@ -56,7 +56,7 @@ Laravel 12 API backend that fulfils the contract expected by the UserHub Flutter
    npm run dev                                       # optional, rebuild assets if you modify views
    ```
 
-The API is now reachable at `http://127.0.0.1:8000/api/v1`. The seeded admin user is listed in [Seed Data](#seed-data).
+The API is now reachable at `http://127.0.0.1:8000/api/v1/v1`. The seeded admin user is listed in [Seed Data](#seed-data).
 
 ### Running with Laravel Herd or Valet
 
@@ -72,7 +72,7 @@ username: admin
 password: Password123!
 ```
 
-The password reset link emails point to `/reset-password` (served from `resources/views/auth/reset-password.blade.php`), which posts back to `/api/auth/reset-password`.
+The password reset link emails point to `/reset-password` (served from `resources/views/auth/reset-password.blade.php`), which posts back to `/api/v1/auth/reset-password`.
 
 ## API Overview
 
@@ -95,21 +95,21 @@ All endpoints return JSON envelopes shaped as:
 
 | Method | URI | Description |
 | --- | --- | --- |
-| POST | `/api/auth/register` | Register new user (optional avatar upload) |
-| POST | `/api/auth/login` | Login with username or email + password |
-| POST | `/api/auth/forgot-password` | Issue password reset email |
-| POST | `/api/auth/reset-password` | Complete password reset flow |
-| POST | `/api/auth/logout` | Invalidate current token |
-| POST | `/api/auth/refresh` | Refresh token |
+| POST | `/api/v1/auth/register` | Register new user (optional avatar upload) |
+| POST | `/api/v1/auth/login` | Login with username or email + password |
+| POST | `/api/v1/auth/forgot-password` | Issue password reset email |
+| POST | `/api/v1/auth/reset-password` | Complete password reset flow |
+| POST | `/api/v1/auth/logout` | Invalidate current token |
+| POST | `/api/v1/auth/refresh` | Refresh token |
 
 ### Profile & Users (JWT required)
 
 | Method | URI | Description |
 | --- | --- | --- |
-| GET | `/api/me` | Fetch authenticated user profile |
-| PUT | `/api/me` | Update profile details and avatar |
-| GET | `/api/users` | Paginated user directory (`page`, `size`, `q`) |
-| GET | `/api/users/{id}` | User detail by id |
+| GET | `/api/v1/me` | Fetch authenticated user profile |
+| PUT | `/api/v1/me` | Update profile details and avatar |
+| GET | `/api/v1/users` | Paginated user directory (`page`, `size`, `q`) |
+| GET | `/api/v1/users/{id}` | User detail by id |
 
 ## Testing & Quality
 
