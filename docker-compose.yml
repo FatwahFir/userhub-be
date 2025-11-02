@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: userhub-be:latest
+    env_file:
+      - docker/.env
+    ports:
+      - "${APP_PORT:-8000}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - storage_data:/var/www/html/storage
+      - bootstrap_cache:/var/www/html/bootstrap/cache
+    networks:
+      - userhub
+
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - docker/.env
+    environment:
+      POSTGRES_DB: ${DOCKER_DB_DATABASE:-userhub}
+      POSTGRES_USER: ${DOCKER_DB_USERNAME:-userhub}
+      POSTGRES_PASSWORD: ${DOCKER_DB_PASSWORD:-secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DOCKER_DB_USERNAME:-userhub}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - userhub
+
+networks:
+  userhub:
+
+volumes:
+  postgres_data:
+  storage_data:
+  bootstrap_cache:
